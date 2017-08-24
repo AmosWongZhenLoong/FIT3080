@@ -47,7 +47,7 @@ def getHeuristic(puzzle):
                     counter = counter + 1
                     puzzle = puzzle[:j] + 'Z' + puzzle[j+1:]
                     break
-    print(puzzle)
+    #print(puzzle)
     return counter
 
 def getPossibleMoves(currentNode):
@@ -139,7 +139,17 @@ def getPossibleStates(possibleMoves,currentNode):
         possibleStates.append(temp)
     return (possibleStates)
 
-nodeCart = {} #format: g, h, f, previous node, move made
+def getSmallestHeuristic(container):
+    smallest = 999
+    for i in range(len(container)):
+        if container[i][1] < smallest:
+            smallest = container[i][1]
+    return smallest
+
+########################################################################
+
+nodeCart = {} # node : g, h, f, previous node, move made
+biasedCart = {} # f : node, priority(1,2,3)
 
 testPuzzle = 'BBWWE'
 
@@ -148,14 +158,37 @@ h = getHeuristic(testPuzzle)
 f = g + h
 
 nodeCart[testPuzzle] = [g,h,f,None,None]
+biasedCart[f] = []
+biasedCart[f].append([testPuzzle,1])
 
-OPEN = [testPuzzle]
+OPEN = [[testPuzzle,f]]
 CLOSE = []
 NEXT = []
 
 ############################## LOOP POINT ##############################
-
-currentNode = OPEN[0]
+smallestHeuristic = getSmallestHeuristic(OPEN)
+got = False
+if len(biasedCart[smallestHeuristic]) == 1:
+    currentNode = biasedCart[smallestHeuristic][0][0]
+else:
+    potentialCandidates = []
+    for i in range(len(biasedCart[smallestHeuristic])):
+        if biasedCart[smallestHeuristic][i][1] == 1:
+            currentNode = biasedCart[smallestHeuristic][i][0]
+            del biasedCart[smallestHeuristic][i]
+            got = True
+    if got == False:
+        for i in range(len(biasedCart[smallestHeuristic])):
+            if biasedCart[smallestHeuristic][i][1] == 2:
+                currentNode = biasedCart[smallestHeuristic][i][0]
+                del biasedCart[smallestHeuristic][i]
+                got = True
+    if got == False:
+        for i in range(len(biasedCart[smallestHeuristic])):
+            if biasedCart[smallestHeuristic][i][1] == 3:
+                currentNode = biasedCart[smallestHeuristic][i][0]
+                del biasedCart[smallestHeuristic][i]
+                got = True
 del OPEN[0]
 
 #maximum 6 possible moves for empty tile (3L,2L,1L,1R,2R,3R)
@@ -184,6 +217,21 @@ for i in range(len(NEXT)):
     H = getHeuristic(node)
     F = G + H
     nodeCart[node] = [G,H,F,currentNode,move]
+    if F in biasedCart:
+        if move == '3L' or move == '2L':
+            biasedCart[F].append([node,1])
+        elif move == '2R' or move == '3R' or move == '1L':
+            biasedCart[F].append([node,2])
+        elif move == '1R':
+            biasedCart[F].append([node,3])
+    else:
+        biasedCart[F] = []
+        if move == '3L' or move == '2L':
+            biasedCart[F].append([node,1])
+        elif move == '2R' or move == '3R' or move == '1L':
+            biasedCart[F].append([node,2])
+        elif move == '1R':
+            biasedCart[F].append([node,3])
     temp = []
     temp.append(node)
     temp.append(F)
