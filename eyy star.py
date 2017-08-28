@@ -1,3 +1,5 @@
+import time
+
 def eyStar(puzzle):
     next
 
@@ -151,8 +153,11 @@ def getSmallestHeuristic(container):
 nodeCart = {} # node : g, h, f, previous node, move made
 biasedCart = {} # f : node, priority(1,2,3)
 
-testPuzzle = 'BBWWE'
-
+testPuzzle = 'BBBWWWE'
+if getHeuristic(testPuzzle) == 0:
+    print('puzzle is already at end state')
+    time.sleep(2)
+    exit()
 g = 0
 h = getHeuristic(testPuzzle)
 f = g + h
@@ -195,13 +200,12 @@ while len(OPEN) != 0:
                     break
     del OPEN[0]
 
+
     #maximum 6 possible moves for empty tile (3L,2L,1L,1R,2R,3R)
     possibleMoves = getPossibleMoves(currentNode)
-    print(possibleMoves)
 
     #each possible move corresponds to a state
     possibleStates = getPossibleStates(possibleMoves,currentNode)
-    print(possibleStates)
 
     #check ancestors
     for i in range(len(possibleStates)):
@@ -216,13 +220,14 @@ while len(OPEN) != 0:
         move = NEXT[i][1]
         G = nodeCart[currentNode][0]
         if move == '3L' or move == '3R':
-            G = g + 2
+            G = G + 2
         else:
-            G = g + 1
+            G = G + 1
         H = getHeuristic(node)
         F = G + H
         if H == 0:
-            nodeCart[node] = [G,H,F,currentNode,move,node]
+            nodeCart[node] = [G,H,F,currentNode,move]
+            endNode = node
             endFound = True
             break
         else:
@@ -259,6 +264,39 @@ while len(OPEN) != 0:
 
     CLOSE.append(currentNode)
     NEXT = []
+
+print(endNode)
+gs = []
+nodes = []
+moves = []
+while True:
+    gs.append(nodeCart[endNode][0])
+    nodes.append(endNode)
+    if nodeCart[endNode][3] is not None:
+        moves.append(nodeCart[endNode][4])
+        endNode = nodeCart[endNode][3]
+    else:
+        break
+
+index = -1
+resultCollector = [] #format: [total cost, node, move to make]
+for i in range(len(moves)):
+    temp = []
+    temp.append(gs[index])
+    temp.append(nodes[index])
+    temp.append(moves[index])
+    resultCollector.append(temp)
+    index = index - 1
+temp = []
+temp.append(gs[index])
+temp.append(nodes[index])
+temp.append(None)
+resultCollector.append(temp)
+
+print("cost" + "node".rjust(7) + "move".rjust(8))
+print("---------------------")
+for i in range(len(resultCollector)):
+    print(resultCollector[i])
 
 ############################## END LOOP ##############################
 
