@@ -153,7 +153,7 @@ def getSmallestHeuristic(container):
 nodeCart = {} # node : g, h, f, previous node, move made
 biasedCart = {} # f : node, priority(1,2,3)
 
-testPuzzle = 'BBBWWWE'
+testPuzzle = 'BBWWBBWWWE'
 if getHeuristic(testPuzzle) == 0:
     print('puzzle is already at end state')
     time.sleep(2)
@@ -172,7 +172,7 @@ NEXT = []
 
 endFound = False
 ############################## LOOP POINT ##############################
-while len(OPEN) != 0:
+while True:
     smallestHeuristic = getSmallestHeuristic(OPEN)
     got = False
     if len(biasedCart[smallestHeuristic]) == 1:
@@ -265,7 +265,7 @@ while len(OPEN) != 0:
     CLOSE.append(currentNode)
     NEXT = []
 
-print(endNode)
+print('the end state is: ' + endNode + '\n')
 gs = []
 nodes = []
 moves = []
@@ -293,10 +293,11 @@ temp.append(nodes[index])
 temp.append(None)
 resultCollector.append(temp)
 
-print("cost" + "node".rjust(7) + "move".rjust(8))
+print("cost" + "node".rjust(len(endNode)-2) + "move".rjust(9))
 print("---------------------")
 for i in range(len(resultCollector)):
     print(resultCollector[i])
+    
 
 ############################## END LOOP ##############################
 
